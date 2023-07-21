@@ -1,0 +1,34 @@
+steps:
+  # Run the bash script to list the VM instances
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        chmod +x ./shell.sh
+        ./shell.sh
+
+  # Install the Python dependencies
+  - name: 'python:3.9'
+    entrypoint: python3.9
+    args:
+      - '-m'
+      - pip
+      - install
+      - google-cloud-secret-manager
+      - google-cloud-storage
+      - google-auth
+      - google-auth-oauthlib
+      - google-auth-httplib2
+      - google-api-python-client
+      - -t
+      - './lib'
+
+  # Run the Python script to upload the CSV file to the GCS bucket
+  - name: 'python:3.9'
+    env:
+      - 'PYTHONPATH=/workspace/lib'
+    args: ['./python.py']
+
+options:
+  logging: CLOUD_LOGGING_ONLY
